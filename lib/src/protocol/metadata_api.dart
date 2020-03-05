@@ -107,8 +107,8 @@ class PartitionMetadata {
     var errorCode = reader.readInt16();
     var partitionId = reader.readInt32();
     var leader = reader.readInt32();
-    var replicas = reader.readArray(KafkaType.int32);
-    var inSyncReplicas = reader.readArray(KafkaType.int32);
+    var replicas = reader.readArray(KafkaType.int32).cast<int>();
+    var inSyncReplicas = reader.readArray(KafkaType.int32).cast<int>();
 
     return new PartitionMetadata._(
         errorCode,
