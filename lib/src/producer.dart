@@ -57,15 +57,14 @@ class Producer {
       int retryTimes: 3,
       Duration retryInterval: const Duration(seconds: 1)}) async {
     var topicNames = new Set<String>.from(messages.map((_) => _.topicName));
-    var meta =
+    ClusterMetadata meta =
         await session.getMetadata(topicNames, invalidateCache: refreshMetadata);
 
-    var byBroker = new ListMultimap<Broker, ProduceEnvelope>.fromIterable(
-        messages, key: (ProduceEnvelope _) {
-      var leaderId =
-          meta.getTopicMetadata(_.topicName).getPartition(_.partitionId).leader;
-      return meta.getBroker(leaderId);
-    });
+    ListMultimap<Broker, ProduceEnvelope> byBroker =
+    new ListMultimap<Broker, ProduceEnvelope>
+        .fromIterable(messages,
+            key: (envelope) => envelopeAndClusterMetadataToBroker(envelope, meta),
+            value: (envelope) => envelope);
     kafkaLogger.fine('Producer: sending ProduceRequests');
 
     Iterable<Future> futures = new List<Future>.from(byBroker.keys.map(
@@ -97,6 +96,14 @@ class Producer {
     } else {
       return result;
     }
+  }
+
+  Broker envelopeAndClusterMetadataToBroker(
+      ProduceEnvelope envelope, ClusterMetadata meta) {
+    return meta.getBroker(meta
+        .getTopicMetadata(envelope.topicName)
+        .getPartition(envelope.partitionId)
+        .leader);
   }
 }
 

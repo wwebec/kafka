@@ -56,7 +56,7 @@ class KafkaBytesBuilder {
   /// Kafka string type starts with int16 indicating size of the string
   /// followed by the actual string value.
   void addString(String value) {
-    List<int> data = UTF8.encode(value);
+    List<int> data = utf8.encode(value);
     addInt16(data.length);
     _builder.add(data);
   }
