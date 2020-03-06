@@ -78,7 +78,7 @@ class TopicMetadata {
   factory TopicMetadata._readFrom(KafkaBytesReader reader) {
     var errorCode = reader.readInt16();
     var topicName = reader.readString();
-    List partitions = reader.readArray(
+    List<PartitionMetadata> partitions = reader.readArray(
         KafkaType.object, (reader) => new PartitionMetadata._readFrom(reader));
     // ignore: STRONG_MODE_DOWN_CAST_COMPOSITE
     return new TopicMetadata._(errorCode, topicName, partitions);
